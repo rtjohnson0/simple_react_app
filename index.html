@@ -2,11 +2,18 @@
 <html lang="en">
 
 <head>
+  <!-- Meta tags for character set and viewport settings -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Weather App ITA Week 3</title>
+  <title>Cloverhound Interview Challenge</title>
+
+  <!-- Preconnect to optimize font loading -->
   <link rel="preconnect" href="https://fonts.gstatic.com">
+
+  <!-- Importing Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
+
+  <!-- Linking external CSS file for styling -->
   <link rel="stylesheet" href="./style.css">
 </head>
 
@@ -15,10 +22,14 @@
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src='https://unpkg.com/babel-standalone@6.26.0/babel.js'></script>
-  <script src="https://code.jquery.com/jquery-3.6.4.min.js" integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"
+    integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
   <script type="text/babel">
+
+    // Destructuring useState and useEffect hooks from React
     const { useState, useEffect } = React;
 
+    // Functional component for user input field
     const UserNameInput = ({ userName, setUserName }) => {
       return (
         <div className="input-group">
@@ -34,10 +45,12 @@
       );
     };
 
+    // Functional component to display the predicted age
     const PredictedAgeDisplay = ({ userName, age }) => {
       return age !== null ? <p>Predicted Age for {userName}: {age}</p> : null;
     };
 
+    // Functional component to display a list of previous searches
     const PredictedAgeList = ({ predictedAges }) => {
       return (
         <div className="age-list">
@@ -53,16 +66,20 @@
       );
     };
 
+
     const App = () => {
+      // State variables for user input, predicted ages, loading status, and error messages
       const [userName, setUserName] = useState('');
       const [predictedAges, setPredictedAges] = useState(JSON.parse(localStorage.getItem('predictedAges')) || {});
       const [loading, setLoading] = useState(false);
       const [error, setError] = useState(null);
 
+      // Effect hook to update local storage whenever predictedAges changes
       useEffect(() => {
         localStorage.setItem('predictedAges', JSON.stringify(predictedAges));
       }, [predictedAges]);
 
+      // Handler for form submission
       const handleSubmit = (e) => {
         e.preventDefault();
         if (!userName.trim()) {
@@ -73,22 +90,24 @@
         if (userName && !predictedAges[userName]) {
           setLoading(true);
           setError(null);
+          // AJAX request to Agify API
           $.ajax({
             url: `https://api.agify.io?name=${userName}`,
             method: 'GET',
-            success: function(data) {
+            success: function (data) {
               setPredictedAges(prevAges => ({ ...prevAges, [userName]: data.age }));
               setLoading(false);
             },
-            error: function(error) {
+            error: function (error) {
               console.error('Error fetching data from Agify.io:', error);
-              setError('Failed to fetch age prediction. Please try again.');
+              setError('Failed to fetch age prediction.');
               setLoading(false);
             }
           });
         }
       };
 
+      // Handler to clear the list of predicted ages and local storage
       const handleClear = () => {
         setPredictedAges({});
         localStorage.removeItem('predictedAges');
@@ -112,6 +131,7 @@
       );
     };
 
+    // Rendering the main App component into the root div
     ReactDOM.render(<App />, document.querySelector('#root'));
   </script>
 </body>
