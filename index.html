@@ -48,36 +48,54 @@
       );
     };
 
+    const AgeDisplay = ({ name, age }) => {
+      return age !== null ? <p>Predicted Age for {name}: {age}</p> : null;
+    };
+
+    const AgeList = ({ ages }) => {
+      return (
+        <div className="age-list">
+          <h3>Previous Searches</h3>
+          <ul>
+            {Object.entries(ages).map(([name, age]) => (
+              <li key={name}>
+                <AgeDisplay name={name} age={age} />
+              </li>
+            ))}
+          </ul>
+        </div>
+      );
+    };
+
     const App = () => {
       const [name, setName] = useState('');
+      const [ages, setAges] = useState({});
+
       const handleSubmit = (e) => {
         e.preventDefault();
-        alert(`Hello, ${name}!`);
+        if (name && !ages[name]) {
+          $.ajax({
+            url: `https://api.agify.io?name=${name}`,
+            method: 'GET',
+            success: function(data) {
+              setAges(prevAges => ({ ...prevAges, [name]: data.age }));
+            },
+            error: function(error) {
+              console.error('Error fetching data from Agify.io:', error);
+            }
+          });
+        }
       };
 
       return (
         <div className="card">
-          <header>
-            <SearchBar />
-          </header>
           <main>
-            <section className="weather loading">
-              <h2 className="city">Weather in Charlotte</h2>
-              <h1 className="temp">60°F</h1>
-              <div className="flex">
-                <img src="https://openweathermap.org/img/wn/04n.png" alt="Weather icon" className="icon" />
-                <div className="description">Cloudy</div>
-              </div>
-              <div className="humidity">Humidity: 60%</div>
-              <div className="wind">Wind speed: 6.2 km/h</div>
-              <div className="low">Low Temp: 44 °F</div>
-              <div className="max">High Temp: 68°F</div>
-            </section>
             <section className="user-form">
               <form onSubmit={handleSubmit}>
-                <NameInput className = "low" name={name} setName={setName} />
+                <NameInput name={name} setName={setName} />
                 <button type="submit">Submit</button>
               </form>
+              <AgeList ages={ages} />
             </section>
           </main>
         </div>
